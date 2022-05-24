@@ -3,7 +3,7 @@
 ## Primero clonar proyecto
     
 ```bash
-    git clone [git@github.com:RobertArzolaC/SignBox.git](https://github.com/RobertArzolaC/SignBox.git)
+    git clone https://github.com/RobertArzolaC/SignBox.git
 ```
 
 ## Crear entorno virtual de python e instalar dependencias
