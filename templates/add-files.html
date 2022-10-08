@@ -1,0 +1,85 @@
+{% extends "base.html" %} {% block navbar %} {% endblock %} {% block content %}
+<div class="container">
+    <div class="row">
+		<div class="span12 mt-5">
+			<form class="form-horizontal" action='' method="POST" enctype="multipart/form-data">
+			  <fieldset>
+			    <div style="display: flex; ">
+			        <legend style="margin-right: 60px;">Agregar Archivos</legend>
+                    <button
+                        id="logout"
+                        type="button"
+                        class="btn btn-danger"
+                    >
+                        Cerrar Sesión
+                    </button>
+			    </div>
+                <div style="width: 40%;">
+                    {{ form.hidden_tag() }}
+                    <label>Seleccionar plantillas a usar:</label>
+                    <div class="form-check">
+                        {{ form.use_first_file(class_="form-check-input") }}
+                        {{ form.use_first_file.label(class_="form-check-label") }}
+                    </div>
+                    <div class="form-check">
+                        {{ form.use_second_file(class_="form-check-input") }}
+                        {{ form.use_second_file.label(class_="form-check-label") }}
+                    </div>
+                    {% if session['username'] == 'jsanchez' %}
+                        <div class="form-check">
+                            {{ form.use_third_file(class_="form-check-input") }}
+                            {{ form.use_third_file.label(class_="form-check-label") }}
+                        </label>
+                    {% endif %}
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="username">
+                            {{ form.upload_file.label }}
+                        </label>
+                        <div class="controls">
+                            {{ form.upload_file(class_="form-control") }}
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="password">
+                            {{ form.pin.label }}
+                        </label>
+                        <div class="controls">
+                            {{ form.pin(class_="form-control") }}
+                        </div>
+                    </div>
+                    <div class="control-group" style="margin-top: 20px;">
+                        {{ form.submit(class_="btn btn-primary") }}
+                        <button
+                            type="button"
+                            id="clean-certificates"
+                            class="btn btn btn-warning"
+                        >
+                            Regresar
+                        </button>
+                    </div>
+                    <div style="margin: 25px;">
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-success" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div style="margin: 25px;">
+                        {% if error %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ error }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+			  </fieldset>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

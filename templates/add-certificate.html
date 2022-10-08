@@ -1,0 +1,44 @@
+{% extends "base.html" %} {% block navbar %} {% endblock %} {% block content %}
+<div class="container">
+    <div class="row">
+		<div class="span12">
+			<form class="form-horizontal" action='' method="POST">
+			  <fieldset>
+			    <div style="display: flex; ">
+			        <legend style="margin-right: 60px;">Agregar Certificado</legend>
+                    <button
+                        id="logout"
+                        type="button"
+                        class="btn btn-danger"
+                    >
+                        Cerrar Sesión
+                    </button>
+			    </div>
+                <div style="width: 40%;">
+                    {{ form.hidden_tag() }}
+                    <div class="control-group">
+                        <label class="control-label" for="username">
+                            {{ form.certificate_id.label }}
+                        </label>
+                        <div class="controls">
+                            {{ form.certificate_id(class_="form-control") }}
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="password">
+                            {{ form.certificate_password.label }}
+                        </label>
+                        <div class="controls">
+                            {{ form.certificate_password(class_="form-control") }}
+                        </div>
+                    </div>
+                    <div class="control-group" style="margin-top: 20px;">
+                        {{ form.submit(class_="btn btn-primary") }}
+                    </div>
+                </div>
+			  </fieldset>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

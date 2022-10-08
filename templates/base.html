@@ -1,5 +1,5 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}Carga de documento{% endblock %}
+{% block title %}Proceso para carga de documento{% endblock %}
 
 {% block navbar %}
 {% endblock %}
@@ -8,4 +8,34 @@
 {% endblock %}
 
 {% block footer %}
+{% endblock %}
+
+{% block scripts %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#logout').on('click', function(e) {
+            e.preventDefault();
+            var url = "/logout";
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function(data) {
+                   return window.location.href = "/";
+                }
+            });
+        });
+        $('#clean-certificates').on('click', function(e) {
+            e.preventDefault();
+            var url = "/clean-certificates";
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function(data) {
+                   return window.location.href = "/add-certificate";
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
