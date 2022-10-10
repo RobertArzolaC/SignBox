@@ -3,8 +3,9 @@ import uuid
 
 from flask_bootstrap import Bootstrap
 from flask import (
-    Flask, render_template, flash, request,
-    redirect, url_for, session
+    Flask, render_template, flash, request, abort,
+    redirect, url_for, session, send_from_directory,
+    send_file
 )
 
 from constants import DEFAULT_USERS, UPLOAD_FOLDER
@@ -19,10 +20,26 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'secret string')
 
 
+@app.route('/signed-files', defaults={'req_path': ''})
+@app.route('/signed-files/<path:req_path>')
+@login_required
+def dir_listing(req_path):
+    abs_path = os.path.join(app.config['UPLOAD_FOLDER'], req_path)
+
+    if not os.path.exists(abs_path):
+        return abort(404)
+
+    if os.path.isfile(abs_path):
+        return send_file(abs_path)
+
+    files = os.listdir(abs_path)
+    return render_template('signed-files.html', files=files)
+
+
 @app.route("/url-out", methods=["POST"])
 def url_out():
     data = request.data
-    filename = f"{app.config['UPLOAD_FOLDER']}/{str(uuid.uuid4())}.txt"
+    filename = f"{app.config['UPLOAD_FOLDER']}/{str(uuid.uuid4())}.pdf"
     with open(filename, 'wb') as f:
         f.write(data)
     return "OK"
@@ -30,10 +47,6 @@ def url_out():
 
 @app.route("/url-back", methods=["POST"])
 def url_back():
-    data = request.data
-    filename = f"{app.config['UPLOAD_FOLDER']}/{str(uuid.uuid4())}.txt"
-    with open(filename, 'wb') as f:
-        f.write(data)
     return "OK"
 
 
@@ -80,15 +93,8 @@ def add_files():
         service = SignBox(
             session["certificate_id"], session["certificate_password"], pin
         )
-        response = service.upload_file(upload_data)
-        if response.ok:
-            job_id = response.text.split("=")[1]
-            content_file = service.get_file(job_id)
-            filename = f"{app.config['UPLOAD_FOLDER']}/{str(uuid.uuid4())}.pdf"
-            with open(filename, 'wb') as fd:
-                for chunk in content_file.iter_content(2000):
-                    fd.write(chunk)
-            flash('La carga de su archivo se realizó con exito!')
+        service.upload_file(upload_data)
+        flash('La carga de su archivo se realizó con exito!.  ')
 
     return render_template("add-files.html", form=form)
 

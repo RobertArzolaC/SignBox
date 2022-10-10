@@ -14,7 +14,7 @@
                         Cerrar Sesión
                     </button>
 			    </div>
-                <div style="width: 40%;">
+                <div style="width: 50%;">
                     {{ form.hidden_tag() }}
                     <label>Seleccionar plantillas a usar:</label>
                     <div class="form-check">
@@ -64,6 +64,9 @@
                                 {% for message in messages %}
                                     <div class="alert alert-success" role="alert">
                                         {{ message }}
+                                        <a target="_blank" href="/signed-files">
+                                            Ver archivos firmados
+                                        </a>
                                     </div>
                                 {% endfor %}
                             {% endif %}

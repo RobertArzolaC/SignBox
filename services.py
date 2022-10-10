@@ -21,6 +21,7 @@ class SignBox:
     def build_payload(self, **kwargs):
         self.payload = {
             'urlback': f'{SERVER_PROJECT}/url-back',
+            'url_out': f'{SERVER_PROJECT}/url-out',
             'env': 'test',
             'format': 'pades',
             'username': self.username,
@@ -37,13 +38,3 @@ class SignBox:
         url = f"{self.api_url}/sign"
         files = dict(file_in=upload_data.stream._file)
         return self.session.post(url, files=files, data=self.payload)
-
-    def get_file(self, job_id):
-        self.add_log(job_id)
-        url = f"{self.api_url}/result/{job_id}"
-        return self.session.get(url, stream=True)
-
-    def add_log(self, job_id):
-        now = datetime.now()
-        with open("logs.txt", "w") as f:
-            f.write(f"{now} - {job_id}")
