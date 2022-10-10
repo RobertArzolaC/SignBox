@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import requests
 
@@ -38,5 +39,11 @@ class SignBox:
         return self.session.post(url, files=files, data=self.payload)
 
     def get_file(self, job_id):
+        self.add_log(job_id)
         url = f"{self.api_url}/result/{job_id}"
         return self.session.get(url, stream=True)
+
+    def add_log(self, job_id):
+        now = datetime.now()
+        with open("logs.txt", "w") as f:
+            f.write(f"{now} - {job_id}")
