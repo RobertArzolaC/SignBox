@@ -11,3 +11,8 @@ def login_required(func):
         return func(*args, **kwargs)
 
     return secure_function
+
+
+def save_file(file, filename):
+    file.save(filename)
+    return filename

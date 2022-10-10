@@ -7,7 +7,7 @@ from flask import (
     redirect, url_for, session
 )
 
-from constants import BASE_DIRECTORY, DEFAULT_USERS
+from constants import DEFAULT_USERS, UPLOAD_FOLDER
 from forms import AddFilesForm, CertificateForm, LoginForm
 from services import SignBox
 from utils import login_required
@@ -15,14 +15,15 @@ from utils import login_required
 
 app = Flask(__name__)
 Bootstrap(app)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'secret string')
 
 
 @app.route("/url-out", methods=["POST"])
 def url_out():
     data = request.data
-    filename = f"{BASE_DIRECTORY}/{str(uuid.uuid4())}.txt"
-    with open(filename, 'w') as f:
+    filename = f"{app.config['UPLOAD_FOLDER']}/{str(uuid.uuid4())}.txt"
+    with open(filename, 'wb') as f:
         f.write(data)
     return "OK"
 
@@ -30,8 +31,8 @@ def url_out():
 @app.route("/url-back", methods=["POST"])
 def url_back():
     data = request.data
-    filename = f"{BASE_DIRECTORY}/{str(uuid.uuid4())}.txt"
-    with open(filename, 'w') as f:
+    filename = f"{app.config['UPLOAD_FOLDER']}/{str(uuid.uuid4())}.txt"
+    with open(filename, 'wb') as f:
         f.write(data)
     return "OK"
 
@@ -73,9 +74,6 @@ def add_certificate():
 def add_files():
     form = AddFilesForm()
     if form.validate_on_submit():
-        # use_first_file = form.use_first_file.data,
-        # use_second_file = form.use_second_file.data,
-        # use_third_file = form.use_third_file.data,
         upload_data = form.upload_file.data
         pin = form.pin.data
 
@@ -85,7 +83,10 @@ def add_files():
         response = service.upload_file(upload_data)
         if response.ok:
             job_id = response.text.split("=")[1]
-            service.load_job(job_id)
+            content_file = service.get_file(job_id)
+            filename = f"{app.config['UPLOAD_FOLDER']}/{str(uuid.uuid4())}.pdf"
+            with open(filename, 'wb') as f:
+                f.write(content_file.content)
             flash('La carga de su archivo se realizó con exito!')
 
     return render_template("add-files.html", form=form)
@@ -96,7 +97,7 @@ def add_files():
 def clean_certificates():
     session.pop("certificate_id", None)
     session.pop("certificate_password", None)
-    return redirect(url_for("add_certificate"))
+    return "ok"
 
 
 @app.route("/logout")
@@ -105,4 +106,4 @@ def logout():
     session.pop("username", None)
     session.pop("certificate_id", None)
     session.pop("certificate_password", None)
-    return redirect(url_for("index"))
+    return "ok"

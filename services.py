@@ -4,6 +4,9 @@ import requests
 from constants import BASE_API
 
 
+SERVER_PROJECT = os.getenv("SERVER_PROJECT", "uanataca")
+
+
 class SignBox:
     api_url = BASE_API
 
@@ -16,8 +19,7 @@ class SignBox:
         
     def build_payload(self, **kwargs):
         self.payload = {
-            'url_out': 'http://localhost:5000/url-out',
-            'urlback': 'http://localhost:5000/url-back',
+            'urlback': f'{SERVER_PROJECT}/url-back',
             'env': 'test',
             'format': 'pades',
             'username': self.username,
@@ -26,16 +28,15 @@ class SignBox:
             'level': 'BES',
             'billing_username': os.getenv('SIGNBOX_BILLING_USERNAME'),
             'billing_password': os.getenv('SIGNBOX_BILLING_PASSWORD'),
-            'tsa_bookmark': 'uanataca',
             'reason': 'Prueba firma',
             'location': 'Lima, Peru'
         }
 
     def upload_file(self, upload_data):
         url = f"{self.api_url}/sign"
-        files = dict(file=upload_data.stream._file)
+        files = dict(file_in=upload_data.stream._file)
         return self.session.post(url, files=files, data=self.payload)
 
-    def load_job(self, job_id):
-        url = f"{self.api_url}/job/{job_id}"
+    def get_file(self, job_id):
+        url = f"{self.api_url}/result/{job_id}"
         return self.session.get(url)
