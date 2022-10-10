@@ -40,8 +40,13 @@ def dir_listing(req_path):
 def url_out():
     data = request.data
     filename = f"{app.config['UPLOAD_FOLDER']}/{str(uuid.uuid4())}.pdf"
+
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
+
     with open(filename, 'wb') as f:
         f.write(data)
+
     return "OK"
 
 
