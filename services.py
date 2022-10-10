@@ -39,4 +39,4 @@ class SignBox:
 
     def get_file(self, job_id):
         url = f"{self.api_url}/result/{job_id}"
-        return self.session.get(url)
+        return self.session.get(url, stream=True)

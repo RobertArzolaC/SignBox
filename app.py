@@ -85,8 +85,9 @@ def add_files():
             job_id = response.text.split("=")[1]
             content_file = service.get_file(job_id)
             filename = f"{app.config['UPLOAD_FOLDER']}/{str(uuid.uuid4())}.pdf"
-            with open(filename, 'wb') as f:
-                f.write(content_file.content)
+            with open(filename, 'wb') as fd:
+                for chunk in content_file.iter_content(2000):
+                    fd.write(chunk)
             flash('La carga de su archivo se realizó con exito!')
 
     return render_template("add-files.html", form=form)
