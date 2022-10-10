@@ -14,6 +14,18 @@
     pip install -r requirements.txt
 ```
 
+## Crear carpeta files en la raíz del proyecto
+
+```bash
+    mkdir files
+```
+
+## Crear archivo .env tomar como ejemplo el archivo example.env
+
+```bash
+    cp example.env .env
+```
+
 ## Correr el servidor
 
 ```bash
