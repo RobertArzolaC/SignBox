@@ -1,8 +1,7 @@
-from datetime import datetime
 import os
 import requests
 
-from constants import BASE_API
+from .constants import BASE_API
 
 
 SERVER_PROJECT = os.getenv("SERVER_PROJECT", "uanataca")

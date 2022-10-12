@@ -7,7 +7,7 @@ def login_required(func):
     @functools.wraps(func)
     def secure_function(*args, **kwargs):
         if "username" not in session:
-            return redirect(url_for("index"))
+            return redirect(url_for("auth.index"))
         return func(*args, **kwargs)
 
     return secure_function

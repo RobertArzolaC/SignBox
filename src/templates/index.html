@@ -1,12 +1,10 @@
-{% extends "base.html" %} {% block navbar %} {% endblock %} {% block content %}
+{% extends "base.html" %} 
+{% block navbar %} Iniciar Sesión {% endblock %} 
+{% block content %}
 <div class="container">
     <div class="row">
 		<div class="span12">
 			<form class="form-horizontal" action='' method="POST">
-			  <fieldset>
-			    <div id="legend">
-			      <legend class="">Iniciar Sesión</legend>
-			    </div>
                 <div style="width: 40%;">
                     {{ form.hidden_tag() }}
                     <div class="control-group">
@@ -18,7 +16,7 @@
                             {{ form.username(class_="form-control") }}
                         </div>
                     </div>
-                    <div class="control-group">
+                    <div class="control-group mt-3">
                         <!-- Password-->
                         <label class="control-label" for="password">
                             {{ form.password.label }}
@@ -49,7 +47,6 @@
                         {% endif %}
                     </div>
                 </div>
-			  </fieldset>
 			</form>
 		</div>
 	</div>

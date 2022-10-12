@@ -1,19 +1,10 @@
-{% extends "base.html" %} {% block navbar %} {% endblock %} {% block content %}
+{% extends "base.html" %}
+{% block navbar %} Agregar Archivos {% endblock %}
+{% block content %}
 <div class="container">
     <div class="row">
-		<div class="span12 mt-5">
+		<div class="span12">
 			<form class="form-horizontal" action='' method="POST" enctype="multipart/form-data">
-			  <fieldset>
-			    <div style="display: flex; ">
-			        <legend style="margin-right: 60px;">Agregar Archivos</legend>
-                    <button
-                        id="logout"
-                        type="button"
-                        class="btn btn-danger"
-                    >
-                        Cerrar Sesión
-                    </button>
-			    </div>
                 <div style="width: 50%;">
                     {{ form.hidden_tag() }}
                     <label>Seleccionar plantillas a usar:</label>
@@ -32,7 +23,7 @@
                         </label>
                     {% endif %}
                     </div>
-                    <div class="control-group">
+                    <div class="control-group mt-3">
                         <label class="control-label" for="username">
                             {{ form.upload_file.label }}
                         </label>
@@ -40,7 +31,7 @@
                             {{ form.upload_file(class_="form-control") }}
                         </div>
                     </div>
-                    <div class="control-group">
+                    <div class="control-group mt-3">
                         <label class="control-label" for="password">
                             {{ form.pin.label }}
                         </label>
@@ -80,7 +71,6 @@
                         {% endif %}
                     </div>
                 </div>
-			  </fieldset>
 			</form>
 		</div>
 	</div>

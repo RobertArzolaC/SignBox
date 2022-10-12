@@ -1,19 +1,10 @@
-{% extends "base.html" %} {% block navbar %} {% endblock %} {% block content %}
+{% extends "base.html" %} 
+{% block navbar %}Agregar Certificado{% endblock %} 
+{% block content %}
 <div class="container">
     <div class="row">
 		<div class="span12">
 			<form class="form-horizontal" action='' method="POST">
-			  <fieldset>
-			    <div style="display: flex; ">
-			        <legend style="margin-right: 60px;">Agregar Certificado</legend>
-                    <button
-                        id="logout"
-                        type="button"
-                        class="btn btn-danger"
-                    >
-                        Cerrar Sesión
-                    </button>
-			    </div>
                 <div style="width: 40%;">
                     {{ form.hidden_tag() }}
                     <div class="control-group">
@@ -36,7 +27,6 @@
                         {{ form.submit(class_="btn btn-primary") }}
                     </div>
                 </div>
-			  </fieldset>
 			</form>
 		</div>
 	</div>
