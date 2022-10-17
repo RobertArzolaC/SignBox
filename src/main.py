@@ -82,6 +82,6 @@ def add_files():
             )
             for template in templates:
                 service.upload_file(template)
-            flash('La carga de su archivo se realizó con exito!.  ')
+            flash('La carga de su archivo se realizó con exito!. ')
 
     return render_template("add-files.html")
