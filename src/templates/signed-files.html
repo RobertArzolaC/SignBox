@@ -1,39 +1,34 @@
-{% extends "base.html" %} {% block navbar %} {% endblock %} {% block content %}
+{% extends "base.html" %}
+{% block navbar %} {% endblock %}
+{% block content %}
 <div class="container">
-    <div class="row">
+  <div class="row">
 		<div class="span12 mt-5">
-            <fieldset>
-			    <div style="display: flex; ">
-			        <legend style="margin-right: 60px;">Archivos Firmados</legend>
-                    <button
-                        id="logout"
-                        type="button"
-                        class="btn btn-danger"
-                    >
-                        Cerrar Sesión
-                    </button>
-			    </div>
-                <div>
-                    <ul>
-                        {% for file in files %}
-                        <li>
-                            <a target="_blank" href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
-                                {{ file }}
-                            </a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="control-group" style="margin-top: 20px;">
-                    <button
-                        type="button"
-                        id="refresh-page"
-                        class="btn btn btn-primary"
-                    >
-                        Actualizar
-                    </button>
-                </div>
-            </fieldset>
+      <fieldset>
+        <div style="display: flex; ">
+          <legend style="margin-right: 60px;">Archivos Firmados</legend>
+        </div>
+        <div>
+          <ul>
+            {% for file in files %}
+              <li>
+                <a target="_blank" href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+                  {{ file }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="control-group" style="margin-top: 20px;">
+          <button
+            type="button"
+            id="refresh-page"
+            class="btn btn btn-primary"
+          >
+            Actualizar
+          </button>
+        </div>
+      </fieldset>
 		</div>
 	</div>
 </div>

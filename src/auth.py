@@ -12,7 +12,7 @@ auth = Blueprint('auth', __name__)
 @auth.route("/", methods=["GET", "POST"])
 def index():
     if current_user.is_authenticated:
-        return redirect(url_for("main.add_certificate"))
+        return redirect(url_for("main.add_files"))
 
     error = None
     form = LoginForm()
@@ -23,7 +23,7 @@ def index():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             login_user(user, remember=True)
-            return redirect(url_for("main.add_certificate"))
+            return redirect(url_for("main.add_files"))
         error = "Usuario o contraseña incorrectos"
     return render_template("index.html", form=form, error=error)
 

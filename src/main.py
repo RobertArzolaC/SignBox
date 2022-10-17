@@ -3,11 +3,10 @@ import uuid
 
 from flask import (
     Blueprint, render_template, flash, request, abort,
-    redirect, url_for, session, send_file, current_app
+    session, send_file, current_app, Response
 )
-from flask_login import login_required, current_user
+from flask_login import login_required
 
-from src.forms import AddFilesForm, CertificateForm
 from src.services import SignBox
 
 
@@ -50,33 +49,39 @@ def url_back():
     return "OK"
 
 
-@main.route("/add-certificate", methods=["GET", "POST"])
+@main.route("/add-certificate", methods=["POST"])
 @login_required
 def add_certificate():
-    if "certificate_id" in session:
-        return redirect(url_for("main.add_files"))
-
-    form = CertificateForm()
-    if form.validate_on_submit():
-        session["certificate_id"] = form.certificate_id.data
-        session["certificate_password"] = form.certificate_password.data
-        return redirect(url_for("main.add_files"))
-
-    return render_template("add-certificate.html", form=form, current_user=current_user)
+    data = request.json
+    session["pin"] = data.get("pin")
+    session["certificate_id"] = data.get("certificateId")
+    session["certificate_password"] = data.get("certificatePassword")
+    return Response({"message": "Success"}, 200)
 
 
 @main.route("/add-files", methods=["GET", "POST"])
 @login_required
 def add_files():
-    form = AddFilesForm()
-    if form.validate_on_submit():
-        upload_data = form.upload_file.data
-        pin = form.pin.data
+    if request.method == 'POST':
+        templates = []
+        data = request.json
+        use_first_template = data.get("useFirstTemplate", None)
+        use_second_template = data.get("useSecondTemplate", None)
 
-        service = SignBox(
-            session["certificate_id"], session["certificate_password"], pin
-        )
-        service.upload_file(upload_data)
-        flash('La carga de su archivo se realizó con exito!.  ')
+        if use_first_template:
+            templates.append(os.getenv("FIRST_TEMPLATE"))
 
-    return render_template("add-files.html", form=form)
+        if use_second_template:
+            templates.append(os.getenv("SECOND_TEMPLATE"))
+
+        if templates:
+            service = SignBox(
+                session["certificate_id"],
+                session["certificate_password"],
+                session["pin"]
+            )
+            for template in templates:
+                service.upload_file(template)
+            flash('La carga de su archivo se realizó con exito!.  ')
+
+    return render_template("add-files.html")

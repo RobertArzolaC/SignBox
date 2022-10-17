@@ -33,7 +33,7 @@ class SignBox:
             'location': 'Lima, Peru'
         }
 
-    def upload_file(self, upload_data):
+    def upload_file(self, upload_file):
         url = f"{self.api_url}/sign"
-        files = dict(file_in=upload_data.stream._file)
-        return self.session.post(url, files=files, data=self.payload)
+        self.payload.update(dict(url_in=upload_file))
+        return self.session.post(url, data=self.payload)

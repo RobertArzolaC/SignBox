@@ -2,77 +2,156 @@
 {% block navbar %} Agregar Archivos {% endblock %}
 {% block content %}
 <div class="container">
-    <div class="row">
+  <div class="row">
 		<div class="span12">
-			<form class="form-horizontal" action='' method="POST" enctype="multipart/form-data">
-                <div style="width: 50%;">
-                    {{ form.hidden_tag() }}
-                    <label>Seleccionar plantillas a usar:</label>
-                    <div class="form-check">
-                        {{ form.use_first_file(class_="form-check-input") }}
-                        {{ form.use_first_file.label(class_="form-check-label") }}
-                    </div>
-                    <div class="form-check">
-                        {{ form.use_second_file(class_="form-check-input") }}
-                        {{ form.use_second_file.label(class_="form-check-label") }}
-                    </div>
-                    {% if session['username'] == 'jsanchez' %}
-                        <div class="form-check">
-                            {{ form.use_third_file(class_="form-check-input") }}
-                            {{ form.use_third_file.label(class_="form-check-label") }}
-                        </label>
-                    {% endif %}
-                    </div>
-                    <div class="control-group mt-3">
-                        <label class="control-label" for="username">
-                            {{ form.upload_file.label }}
-                        </label>
-                        <div class="controls">
-                            {{ form.upload_file(class_="form-control") }}
-                        </div>
-                    </div>
-                    <div class="control-group mt-3">
-                        <label class="control-label" for="password">
-                            {{ form.pin.label }}
-                        </label>
-                        <div class="controls">
-                            {{ form.pin(class_="form-control") }}
-                        </div>
-                    </div>
-                    <div class="control-group" style="margin-top: 20px;">
-                        {{ form.submit(class_="btn btn-primary") }}
-                        <button
-                            type="button"
-                            id="clean-certificates"
-                            class="btn btn btn-warning"
-                        >
-                            Regresar
-                        </button>
-                    </div>
-                    <div style="margin: 25px;">
-                        {% with messages = get_flashed_messages() %}
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="alert alert-success" role="alert">
-                                        {{ message }}
-                                        <a target="_blank" href="/signed-files">
-                                            Ver archivos firmados
-                                        </a>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                    <div style="margin: 25px;">
-                        {% if error %}
-                            <div class="alert alert-danger" role="alert">
-                                {{ error }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
+			<form class="form-horizontal" action='' method="POST">
+        <input type="hidden" id="id-session-certificate" value={{ session['certificate_id'] }}>
+        <div style="width: 50%;">
+          <h5>Seleccionar plantillas a usar:</h5>
+          <div class="form-check">
+            <input
+              class="form-check-input mt-0"
+              id="use-first-template"
+              type="checkbox"
+            >
+            <span>Usar primera plantilla</span>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input mt-0"
+              id="use-second-template"
+              type="checkbox"
+            >
+            <span>Usar segunda plantilla</span>
+          </div>
+        </div>
+          <div class="control-group" style="margin-top: 20px;">
+            <button
+              type="button"
+              id="send-data"
+              class="btn btn-primary"
+            >
+              Subir
+            </button>
+          </div>
+        </div>
 			</form>
+
+      <div
+        tabindex="-1"
+        aria-hidden="true"
+        class="modal fade"
+        id="certificate-modal"
+        aria-labelledby="exampleModalLabel"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">
+                Primero necesita agregar certificado
+              </h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="mb-3">
+                  <label for="id-certificate" class="col-form-label">Id de Certificado: </label>
+                  <input type="text" class="form-control" id="id-certificate">
+                </div>
+                <div class="mb-3">
+                  <label for="password-certificate" class="col-form-label">Contraseña de Certificado: </label>
+                  <input type="password" class="form-control" id="password-certificate">
+                </div>
+                <div class="mb-3">
+                  <label for="pin" class="col-form-label">Pin: </label>
+                  <input type="password" class="form-control" id="pin">
+                </div>
+              </form>
+            </div>
+            <div style="margin: 25px;">
+              {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                  {% for message in messages %}
+                    <div class="alert alert-success" role="alert">
+                      {{ message }}
+                      <a target="_blank" href="/signed-files">
+                        Ver archivos firmados
+                      </a>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Cerrar
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                id="send-certificate-data"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 		</div>
 	</div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+  $(document).ready(function() {
+    $("#send-data").on("click", function() {
+      const idSessionCertificate = $("#id-session-certificate").val();
+      if (!idSessionCertificate) {
+        const modalForm = new bootstrap.Modal('#certificate-modal')
+        modalForm.show();
+      } else {
+        const formData = {
+          useFirstTemplate: $("#use-first-template").is(':checked'),
+          useSecondTemplate: $("#use-second-template").is(':checked'),
+        };
+        $.ajax({
+          type: "POST",
+          dataType: "json",
+          url: "/add-files",
+          data: JSON.stringify(formData),
+          contentType: "application/json; charset=utf-8",
+          success: function(data){
+            window.location.reload();
+          },
+          error: function(error){
+            window.location.reload();
+          }
+        });
+        event.preventDefault();
+      }
+    });
+    $("#send-certificate-data").on("click", function() {
+      const formData = {
+        pin: $("#pin").val(),
+        certificateId: $("#id-certificate").val(),
+        certificatePassword: $("#password-certificate").val(),
+      };
+      $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: "/add-certificate",
+        data: JSON.stringify(formData),
+        contentType: "application/json; charset=utf-8",
+        success: function(data){
+          window.location.reload();
+        },
+        error: function(error){
+          window.location.reload();
+        }
+      });
+
+      event.preventDefault();
+    })
+  })
+</script>
 {% endblock %}

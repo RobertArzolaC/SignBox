@@ -1,7 +1,6 @@
 import os
 
 from flask import Flask
-from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
@@ -12,7 +11,6 @@ login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
-    bootstrap = Bootstrap5(app)
 
     with app.app_context():
 

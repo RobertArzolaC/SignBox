@@ -14,6 +14,9 @@ class LoginForm(FlaskForm):
 
 
 class CertificateForm(FlaskForm):
+    pin = PasswordField(
+        'Pin', validators=[DataRequired()]
+    )
     certificate_id = StringField(
         'ID Certificado', validators=[DataRequired()]
     )
