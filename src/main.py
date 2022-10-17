@@ -5,7 +5,8 @@ from flask import (
     Blueprint, render_template, flash, request, abort,
     session, send_file, current_app, Response
 )
-from flask_login import login_required
+from flask_login import login_required, current_user
+from src.models import Certificate
 
 from src.services import SignBox
 
@@ -53,10 +54,32 @@ def url_back():
 @login_required
 def add_certificate():
     data = request.json
-    session["pin"] = data.get("pin")
-    session["certificate_id"] = data.get("certificateId")
-    session["certificate_password"] = data.get("certificatePassword")
-    return Response({"message": "Success"}, 200)
+    certificate = Certificate(
+        user_id=current_user.id,
+        certificate_id=data["certificateId"],
+        certificate_password=data["certificatePassword"],
+    )
+    certificate.save()
+    return Response({"message": "Creating Success."}, 201)
+
+
+@main.route("/delete-certificate", methods=["GET"])
+@login_required
+def delete_certificate():
+    certificate = Certificate.query.filter_by(
+        user_id=current_user.id, is_active=True,
+    ).first()
+    certificate.is_active = False
+    certificate.save()
+    return Response({"message": "Deleting Success."}, 200)
+
+
+@main.route("/add-pin", methods=["POST"])
+@login_required
+def add_pin():
+    data = request.json
+    session["pin"] = data["pin"]
+    return Response({"message": "Creating Success."}, 201)
 
 
 @main.route("/add-files", methods=["GET", "POST"])
@@ -75,13 +98,19 @@ def add_files():
             templates.append(os.getenv("SECOND_TEMPLATE"))
 
         if templates:
+            certificate = Certificate.query.filter_by(
+                user_id=current_user.id, is_active=True,
+            ).first()
             service = SignBox(
-                session["certificate_id"],
-                session["certificate_password"],
+                certificate.certificate_id,
+                certificate.certificate_password,
                 session["pin"]
             )
             for template in templates:
                 service.upload_file(template)
-            flash('La carga de su archivo se realizó con exito!. ')
 
-    return render_template("add-files.html")
+    certificate = Certificate.query.filter_by(
+        user_id=current_user.id, is_active=True
+    ).first()
+
+    return render_template("add-files.html", certificate=certificate)

@@ -8,3 +8,16 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(150))
+
+
+class Certificate(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    certificate_id = db.Column(db.String(100))
+    certificate_password = db.Column(db.String(100))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref=db.backref('certificates', lazy=True))
+    is_active = db.Column(db.Boolean, default=True)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()

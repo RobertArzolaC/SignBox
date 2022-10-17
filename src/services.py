@@ -30,7 +30,8 @@ class SignBox:
             'billing_username': os.getenv('SIGNBOX_BILLING_USERNAME'),
             'billing_password': os.getenv('SIGNBOX_BILLING_PASSWORD'),
             'reason': 'Prueba firma',
-            'location': 'Lima, Peru'
+            'location': 'Lima, Peru',
+            'files': []
         }
 
     def upload_file(self, upload_file):

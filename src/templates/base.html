@@ -34,15 +34,17 @@
               Hola, {{ current_user.first_name }} {{ current_user.last_name }}
             </button>
             <ul class="dropdown-menu">
-              <li>
-                <a
-                  class="dropdown-item"
-                  style="cursor: pointer;"
-                  id="clean-certificate"
-                >
-                  Borrar Certificado
-                </a>
-              </li>
+              {% if certificate %}
+                <li>
+                  <a
+                    class="dropdown-item"
+                    style="cursor: pointer;"
+                    id="delete-certificate"
+                  >
+                    Borrar Certificado
+                  </a>
+                </li>
+              {% endif %}
               <li>
                 <a
                   class="dropdown-item"
@@ -77,15 +79,17 @@
             },
           });
         });
-        $("#clean-certificate").on("click", function (e) {
-          e.preventDefault();
-          var url = "/clean-certificates";
+        $("#delete-certificate").on("click", function (e) {
+          event.preventDefault();
           $.ajax({
             type: "GET",
-            url: url,
-            success: function (data) {
-              return (window.location.href = "/add-files");
+            url: "/delete-certificate",
+            success: function(data){
+              window.location.reload();
             },
+            error: function(error){
+              window.location.reload();
+            }
           });
         });
         $("#refresh-page").on("click", function (e) {

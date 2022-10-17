@@ -31,16 +31,6 @@ def index():
 @auth.route("/logout")
 @login_required
 def logout():
-    session.pop("username", None)
-    session.pop("certificate_id", None)
-    session.pop("certificate_password", None)
+    session.pop("pin", None)
     logout_user()
-    return "ok"
-
-
-@auth.route("/clean-certificates")
-@login_required
-def clean_certificates():
-    session.pop("certificate_id", None)
-    session.pop("certificate_password", None)
     return "ok"

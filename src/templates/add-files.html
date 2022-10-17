@@ -1,11 +1,19 @@
 {% extends "base.html" %}
-{% block navbar %} Agregar Archivos {% endblock %}
+{% block navbar %}
+  Agregar Archivos
+  {% if not certificate.certificate_id %}
+    <button class="btn btn-danger" id="load-certificate">
+      Añadir certificado
+    </button>
+  {% endif %}
+{% endblock %}
 {% block content %}
 <div class="container">
   <div class="row">
 		<div class="span12">
 			<form class="form-horizontal" action='' method="POST">
-        <input type="hidden" id="id-session-certificate" value={{ session['certificate_id'] }}>
+        <input type="hidden" id="id-session-certificate" value={{ certificate.certificate_id }}>
+        <input type="hidden" id="id-session-pin" value={{ session['pin'] }}>
         <div style="width: 50%;">
           <h5>Seleccionar plantillas a usar:</h5>
           <div class="form-check">
@@ -25,79 +33,125 @@
             <span>Usar segunda plantilla</span>
           </div>
         </div>
-          <div class="control-group" style="margin-top: 20px;">
+        <div
+          role="alert"
+          class="alert alert-danger"
+          id="message-not-found-certificate"
+          style="display: none; margin-top: 1em;"
+        >
+          No se ha agregado ningún certificado.
+        </div>
+        <div
+          role="alert"
+          id="success-load-files"
+          class="alert alert-success"
+          style="display: none; margin-top: 1em;"
+        >
+          La carga de su archivo se realizó con exito!.  
+          <a href="/signed-files" target="_blank" class="alert-link">
+            Ver archivos firmados
+          </a>
+        </div>
+        <div class="control-group" style="margin-top: 20px;">
+          <button
+            type="button"
+            id="send-data"
+            class="btn btn-primary"
+          >
+            Cargar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div
+      tabindex="-1"
+      aria-hidden="true"
+      class="modal fade"
+      id="certificate-modal"
+      aria-labelledby="exampleModalLabel"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">
+              Agregar Certificado
+            </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="id-certificate" class="col-form-label">Id de Certificado: </label>
+                <input type="text" class="form-control" id="id-certificate">
+              </div>
+              <div class="mb-3">
+                <label for="password-certificate" class="col-form-label">Contraseña de Certificado: </label>
+                <input type="password" class="form-control" id="password-certificate">
+              </div>
+            </form>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Cerrar
+            </button>
             <button
               type="button"
-              id="send-data"
               class="btn btn-primary"
+              id="send-certificate-data"
             >
-              Subir
+              Guardar
             </button>
           </div>
         </div>
-			</form>
+      </div>
+    </div>
 
-      <div
-        tabindex="-1"
-        aria-hidden="true"
-        class="modal fade"
-        id="certificate-modal"
-        aria-labelledby="exampleModalLabel"
-      >
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="exampleModalLabel">
-                Primero necesita agregar certificado
-              </h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <form>
-                <div class="mb-3">
-                  <label for="id-certificate" class="col-form-label">Id de Certificado: </label>
-                  <input type="text" class="form-control" id="id-certificate">
-                </div>
-                <div class="mb-3">
-                  <label for="password-certificate" class="col-form-label">Contraseña de Certificado: </label>
-                  <input type="password" class="form-control" id="password-certificate">
-                </div>
-                <div class="mb-3">
-                  <label for="pin" class="col-form-label">Pin: </label>
-                  <input type="password" class="form-control" id="pin">
-                </div>
-              </form>
-            </div>
-            <div style="margin: 25px;">
-              {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                  {% for message in messages %}
-                    <div class="alert alert-success" role="alert">
-                      {{ message }}
-                      <a target="_blank" href="/signed-files">
-                        Ver archivos firmados
-                      </a>
-                    </div>
-                  {% endfor %}
-                {% endif %}
-              {% endwith %}
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                Cerrar
-              </button>
-              <button
-                type="button"
-                class="btn btn-primary"
-                id="send-certificate-data"
-              >
-                Guardar
-              </button>
-            </div>
+    <div
+      tabindex="-1"
+      aria-hidden="true"
+      class="modal fade"
+      id="pin-modal"
+      aria-labelledby="exampleModalLabel2"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel2">
+              Agregar Pin
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close">
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="id-pin" class="col-form-label">Pin: </label>
+                <input type="text" class="form-control" id="id-pin">
+              </div>
+            </form>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Cerrar
+            </button>
+            <button
+              type="button"
+              id="send-pin-data"
+              class="btn btn-primary"
+            >
+              Guardar
+            </button>
           </div>
         </div>
       </div>
-		</div>
+    </div>
 	</div>
 </div>
 {% endblock %}
@@ -105,11 +159,20 @@
 <script>
   $(document).ready(function() {
     $("#send-data").on("click", function() {
+      const idSessionPin = $("#id-session-pin").val();
       const idSessionCertificate = $("#id-session-certificate").val();
       if (!idSessionCertificate) {
-        const modalForm = new bootstrap.Modal('#certificate-modal')
-        modalForm.show();
+        $("#message-not-found-certificate").show();
+        setTimeout(function(){
+          $("#message-not-found-certificate").fadeOut(1000);
+        }, 700);
+        return;
+      }
+      if (!idSessionPin) {
+        const modalFormPin = new bootstrap.Modal('#pin-modal');
+        modalFormPin.show();
       } else {
+        event.preventDefault();
         const formData = {
           useFirstTemplate: $("#use-first-template").is(':checked'),
           useSecondTemplate: $("#use-second-template").is(':checked'),
@@ -121,18 +184,24 @@
           data: JSON.stringify(formData),
           contentType: "application/json; charset=utf-8",
           success: function(data){
-            window.location.reload();
+            console.log("data: ", data);
           },
           error: function(error){
-            window.location.reload();
+            $("#success-load-files").show();
+            setTimeout(function(){
+              $("#success-load-files").fadeOut(1000);
+            }, 5000);
           }
         });
-        event.preventDefault();
       }
     });
+    $("#load-certificate").on("click", function() {
+      const modalFormCertificate = new bootstrap.Modal('#certificate-modal');
+      modalFormCertificate.show();
+    });
     $("#send-certificate-data").on("click", function() {
+      event.preventDefault();
       const formData = {
-        pin: $("#pin").val(),
         certificateId: $("#id-certificate").val(),
         certificatePassword: $("#password-certificate").val(),
       };
@@ -149,8 +218,25 @@
           window.location.reload();
         }
       });
-
+    });
+    $("#send-pin-data").on("click", function() {
       event.preventDefault();
+      const formData = {
+        pin: $("#id-pin").val(),
+      };
+      $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: "/add-pin",
+        data: JSON.stringify(formData),
+        contentType: "application/json; charset=utf-8",
+        success: function(data){
+          window.location.reload();
+        },
+        error: function(error){
+          window.location.reload();
+        }
+      });
     })
   })
 </script>
