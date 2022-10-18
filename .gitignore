@@ -6,3 +6,4 @@ __pycache__/
 signed-files/
 logs.txt
 .vscode/
+*.sqlite
