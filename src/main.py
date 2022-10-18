@@ -1,8 +1,7 @@
 import os
-import uuid
 
 from flask import (
-    Blueprint, render_template, flash, request, abort,
+    Blueprint, render_template, request, abort,
     session, send_file, current_app, Response
 )
 from flask_login import login_required, current_user
@@ -19,25 +18,25 @@ UPLOAD_FOLDER = current_app.config['UPLOAD_FOLDER']
 @main.route('/signed-files/<path:req_path>')
 @login_required
 def dir_listing(req_path):
-    abs_path = os.path.join(UPLOAD_FOLDER, req_path)
+    abs_path = os.path.join(f"{UPLOAD_FOLDER}", req_path)
 
-    if not os.path.exists(abs_path):
+    if not os.path.exists(f"src/{abs_path}"):
         return abort(404)
 
-    if os.path.isfile(abs_path):
+    if os.path.isfile(f"src/{abs_path}"):
         return send_file(abs_path)
 
-    files = os.listdir(abs_path)
+    files = os.listdir(f"src/{abs_path}")
     return render_template('signed-files.html', files=files)
 
 
-@main.route("/url-out", methods=["POST"])
-def url_out():
+@main.route("/result_<filename>", methods=["POST"])
+def url_out(filename):
     data = request.data
-    filename = f"{UPLOAD_FOLDER}/{str(uuid.uuid4())}.pdf"
+    filename = f"src/{UPLOAD_FOLDER}/{filename}.pdf"
 
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
+    if not os.path.exists(f"src/{UPLOAD_FOLDER}"):
+        os.makedirs(f"src/{UPLOAD_FOLDER}")
 
     with open(filename, 'wb') as f:
         f.write(data)
@@ -45,8 +44,9 @@ def url_out():
     return "OK"
 
 
-@main.route("/url-back", methods=["POST"])
+@main.route("/servicelogs", methods=["POST"])
 def url_back():
+    print(request.data)
     return "OK"
 
 

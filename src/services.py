@@ -15,26 +15,35 @@ class SignBox:
         self.username = username
         self.password = password
         self.pin = pin
+        self.build_headers()
         self.build_payload()
         
-    def build_payload(self, **kwargs):
+    def build_headers(self):
+        self.headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        
+    def build_payload(self):
         self.payload = {
-            'urlback': f'{SERVER_PROJECT}/url-back',
-            'url_out': f'{SERVER_PROJECT}/url-out',
+            'urlback': f'{SERVER_PROJECT}/servicelogs',
+            'url_out': f'{SERVER_PROJECT}/result_book1',
             'env': 'test',
-            'format': 'pades',
             'username': self.username,
             'password': self.password,
             'pin': self.pin,
-            'level': 'BES',
             'billing_username': os.getenv('SIGNBOX_BILLING_USERNAME'),
             'billing_password': os.getenv('SIGNBOX_BILLING_PASSWORD'),
-            'reason': 'Prueba firma',
-            'location': 'Lima, Peru',
-            'files': []
+            'img_bookmark': 'uanataca',
+            'img_name': 'uanataca.argb'
         }
 
     def upload_file(self, upload_file):
         url = f"{self.api_url}/sign"
-        self.payload.update(dict(url_in=upload_file))
-        return self.session.post(url, data=self.payload)
+        filename = upload_file.split("/")[-1].split(".")[0]
+        self.payload.update(dict(
+            url_in=upload_file,
+            url_out=f'{SERVER_PROJECT}/result_{filename}'
+        ))
+        return self.session.post(
+            url, data=self.payload
+        )

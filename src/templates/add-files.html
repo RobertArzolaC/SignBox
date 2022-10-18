@@ -187,7 +187,9 @@
             console.log("data: ", data);
           },
           error: function(error){
-            $("#success-load-files").show();
+            setTimeout(function(){
+              $("#success-load-files").show();
+            }, 3000);
             setTimeout(function(){
               $("#success-load-files").fadeOut(1000);
             }, 5000);
