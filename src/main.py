@@ -46,7 +46,6 @@ def url_out(filename):
 
 @main.route("/servicelogs", methods=["POST"])
 def url_back():
-    print(request.data)
     return "OK"
 
 
