@@ -46,8 +46,26 @@ def seed_db():
         url="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
         user_id=user_1.id,
     )
+    document_3 = Document(
+        document_name="Test_PDF.pdf",
+        url="https://www.gemini.com/documents/credit/Test_PDF.pdf",
+        user_id=user_1.id,
+    )
+    document_4 = Document(
+        document_name="test.pdf",
+        url="http://s29.q4cdn.com/175625835/files/doc_downloads/test.pdf",
+        user_id=user_2.id,
+    )
+    document_5 = Document(
+        document_name="TestPDFfile.pdf",
+        url="https://www.clickdimensions.com/links/TestPDFfile.pdf",
+        user_id=user_2.id,
+    )
     db.session.add(document_1)
     db.session.add(document_2)
+    db.session.add(document_3)
+    db.session.add(document_4)
+    db.session.add(document_5)
     db.session.commit()
     
 

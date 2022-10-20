@@ -62,18 +62,23 @@
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a
-                  class="dropdown-item"
-                  style="cursor: pointer;"
-                  id="{% if certificate %}delete{% else %}add{% endif %}-certificate"
-                >
-                  {% if certificate %}
-                    Borrar 
-                  {% else %}
-                    Agregar 
-                  {% endif %}
-                  Certificado
-                </a>
+                {% if not certificate %}
+                  <a
+                    id="show-modal-certificate"
+                    class="dropdown-item"
+                    style="cursor: pointer;"
+                  >
+                    Agregar Certificado
+                  </a>
+                {% else %}
+                  <a
+                    class="dropdown-item"
+                    style="cursor: pointer;"
+                    href="/delete-certificate"
+                  >
+                    Borrar Certificado
+                  </a>
+                {% endif %}
               </li>
               <li>
                 <a
@@ -108,25 +113,9 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script>
       $(document).ready(function () {
-        $("#add-certificate").on("click", function() {
+        $("#show-modal-certificate").on("click", function() {
           const modalFormCertificate = new bootstrap.Modal('#certificate-modal');
           modalFormCertificate.show();
-        });
-        $("#delete-certificate").on("click", function (e) {
-          event.preventDefault();
-          $.ajax({
-            type: "GET",
-            url: "/delete-certificate",
-            success: function(data){
-              window.location.reload();
-            },
-            error: function(error){
-              window.location.reload();
-            }
-          });
-        });
-        $("#refresh-page").on("click", function (e) {
-          window.location.reload();
         });
       });
     </script>

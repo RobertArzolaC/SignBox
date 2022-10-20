@@ -18,10 +18,19 @@ UPLOAD_FOLDER = current_app.config['UPLOAD_FOLDER']
 @main.route('/signed-files')
 @login_required
 def signed_files():
+    certificate = Certificate.query.filter_by(
+        user_id=current_user.id, is_active=True
+    ).first()
     documents = Document.query.filter_by(
         user_id=current_user.id, is_signed=True
     ).all()
-    return render_template('signed-files.html', documents=documents)
+
+    context = {
+        'certificate': certificate,
+        'documents': documents
+    }
+
+    return render_template('signed-files.html', **context)
 
 
 @main.route('/signed-file/<int:document_id>')
@@ -92,7 +101,7 @@ def delete_certificate():
     ).first()
     certificate.is_active = False
     certificate.save()
-    return Response({"message": "Deleting Success."}, 200)
+    return redirect(url_for("auth.index"))
 
 
 @main.route("/add-pin", methods=["POST"])
