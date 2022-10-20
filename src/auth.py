@@ -31,6 +31,5 @@ def index():
 @auth.route("/logout")
 @login_required
 def logout():
-    session.pop("pin", None)
     logout_user()
-    return "ok"
+    return redirect(url_for("auth.index"))

@@ -21,11 +21,38 @@
   </head>
   <body>
     <nav
-      class="navbar navbar-expand-lg navbar-light bg-light"
+      class="navbar navbar-expand-lg navbar-light bg-primary"
       style="padding: 1em 20em; display: flex; justify-content: space-between"
     >
-      <div>
-        <a class="navbar-brand"> {% block navbar %}{% endblock %} </a>
+      <a class="navbar-brand" href="/add-files">
+        <img
+          src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo"
+          width="50"
+          height="45"
+          class="d-inline-block align-text-top"
+        >
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a
+              class="nav-link active text-white"
+              aria-current="page"
+              href="/add-files"
+            >
+              Bandeja
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/signed-files">Documento Firmados</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#">Otros</a>
+          </li>
+        </ul>
       </div>
       <div>
         {% if current_user.is_authenticated %}
@@ -34,22 +61,35 @@
               Hola, {{ current_user.first_name }} {{ current_user.last_name }}
             </button>
             <ul class="dropdown-menu">
-              {% if certificate %}
-                <li>
-                  <a
-                    class="dropdown-item"
-                    style="cursor: pointer;"
-                    id="delete-certificate"
-                  >
-                    Borrar Certificado
-                  </a>
-                </li>
-              {% endif %}
               <li>
                 <a
                   class="dropdown-item"
                   style="cursor: pointer;"
-                  id="logout">
+                  id="{% if certificate %}delete{% else %}add{% endif %}-certificate"
+                >
+                  {% if certificate %}
+                    Borrar 
+                  {% else %}
+                    Agregar 
+                  {% endif %}
+                  Certificado
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  style="cursor: pointer;"
+                  href="/restore-files"
+                >
+                  Restablecer
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  style="cursor: pointer;"
+                  href="/logout"
+                >
                   Cerrar Sesión
                 </a>
               </li>
@@ -68,16 +108,9 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script>
       $(document).ready(function () {
-        $("#logout").on("click", function (e) {
-          e.preventDefault();
-          var url = "/logout";
-          $.ajax({
-            type: "GET",
-            url: url,
-            success: function (data) {
-              return (window.location.href = "/");
-            },
-          });
+        $("#add-certificate").on("click", function() {
+          const modalFormCertificate = new bootstrap.Modal('#certificate-modal');
+          modalFormCertificate.show();
         });
         $("#delete-certificate").on("click", function (e) {
           event.preventDefault();

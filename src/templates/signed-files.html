@@ -10,10 +10,10 @@
         </div>
         <div>
           <ul>
-            {% for file in files %}
+            {% for document in documents %}
               <li>
-                <a target="_blank" href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
-                  {{ file }}
+                <a target="_blank" href="/signed-file/{{document.id}}">
+                  {{ document.document_name }}
                 </a>
               </li>
             {% endfor %}

@@ -1,11 +1,12 @@
-import os
+import io
 
 from flask import (
     Blueprint, render_template, request, abort,
-    session, send_file, current_app, Response
+    session, send_file, current_app, Response,
+    redirect, url_for
 )
 from flask_login import login_required, current_user
-from src.models import Certificate
+from src.models import Certificate, Document
 
 from src.services import SignBox
 
@@ -14,35 +15,56 @@ main = Blueprint('main', __name__)
 UPLOAD_FOLDER = current_app.config['UPLOAD_FOLDER']
 
 
-@main.route('/signed-files', defaults={'req_path': ''})
-@main.route('/signed-files/<path:req_path>')
+@main.route('/signed-files')
 @login_required
-def dir_listing(req_path):
-    abs_path = os.path.join(f"{UPLOAD_FOLDER}", req_path)
+def signed_files():
+    documents = Document.query.filter_by(
+        user_id=current_user.id, is_signed=True
+    ).all()
+    return render_template('signed-files.html', documents=documents)
 
-    if not os.path.exists(f"src/{abs_path}"):
-        return abort(404)
 
-    if os.path.isfile(f"src/{abs_path}"):
-        return send_file(abs_path)
+@main.route('/signed-file/<int:document_id>')
+@login_required
+def download_signed_file(document_id):
+    document = Document.query.filter_by(
+        user_id=current_user.id, id=document_id
+    ).first()
+    if document is None:
+        abort(404)
+    return send_file(
+        io.BytesIO(document.data_signed),
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=document.document_name
+    )
 
-    files = os.listdir(f"src/{abs_path}")
-    return render_template('signed-files.html', files=files)
+@main.route('/restore-files')
+@login_required
+def restore_files():
+    templates = Document.query.filter_by(
+        user_id=current_user.id
+    ).all()
+    for template in templates:
+        template.is_signed = False
+        template.save()
+
+    return redirect(url_for("auth.index"))
 
 
 @main.route("/result_<filename>", methods=["POST"])
 def url_out(filename):
     data = request.data
-    filename = f"src/{UPLOAD_FOLDER}/{filename}.pdf"
+    document = Document.query.filter(
+        Document.document_name.startswith(filename)
+    ).first()
 
-    if not os.path.exists(f"src/{UPLOAD_FOLDER}"):
-        os.makedirs(f"src/{UPLOAD_FOLDER}")
-
-    with open(filename, 'wb') as f:
-        f.write(data)
-
-    return "OK"
-
+    if document:
+        document.data_signed = data
+        document.is_signed = True
+        document.save()
+    
+    return "ok"
 
 @main.route("/servicelogs", methods=["POST"])
 def url_back():
@@ -84,32 +106,34 @@ def add_pin():
 @main.route("/add-files", methods=["GET", "POST"])
 @login_required
 def add_files():
-    if request.method == 'POST':
-        templates = []
-        data = request.json
-        use_first_template = data.get("useFirstTemplate", None)
-        use_second_template = data.get("useSecondTemplate", None)
-
-        if use_first_template:
-            templates.append(os.getenv("FIRST_TEMPLATE"))
-
-        if use_second_template:
-            templates.append(os.getenv("SECOND_TEMPLATE"))
-
-        if templates:
-            certificate = Certificate.query.filter_by(
-                user_id=current_user.id, is_active=True,
-            ).first()
-            service = SignBox(
-                certificate.certificate_id,
-                certificate.certificate_password,
-                session["pin"]
-            )
-            for template in templates:
-                service.upload_file(template)
-
     certificate = Certificate.query.filter_by(
         user_id=current_user.id, is_active=True
     ).first()
+    templates = Document.query.filter_by(
+        user_id=current_user.id
+    ).all()
 
-    return render_template("add-files.html", certificate=certificate)
+    if request.method == 'POST':
+        data = request.json
+        pin = data["pin"]
+        document_ids = data["documentIds"]
+        templates_to_sign = Document.query.filter(
+            Document.id.in_(document_ids)
+        ).all()
+
+        if templates_to_sign:
+            service = SignBox(
+                certificate.certificate_id,
+                certificate.certificate_password,
+                pin
+            )
+
+            for template in templates_to_sign:
+                service.upload_file(template.url)
+
+    context = {
+        "certificate": certificate,
+        "templates": templates,
+    }
+
+    return render_template("add-files.html", **context)

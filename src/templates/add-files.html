@@ -1,12 +1,4 @@
 {% extends "base.html" %}
-{% block navbar %}
-  Agregar Archivos
-  {% if not certificate.certificate_id %}
-    <button class="btn btn-danger" id="load-certificate">
-      Añadir certificado
-    </button>
-  {% endif %}
-{% endblock %}
 {% block content %}
 <div class="container">
   <div class="row">
@@ -15,50 +7,48 @@
         <input type="hidden" id="id-session-certificate" value={{ certificate.certificate_id }}>
         <input type="hidden" id="id-session-pin" value={{ session['pin'] }}>
         <div style="width: 50%;">
-          <h5>Seleccionar plantillas a usar:</h5>
-          <div class="form-check">
-            <input
-              class="form-check-input mt-0"
-              id="use-first-template"
-              type="checkbox"
-            >
-            <span>Usar primera plantilla</span>
+          <h5>Seleccionar documentos a usar:</h5>
+          <div id="checkbox-container">
+            {% for template in templates %}
+              {% if not template.is_signed %}
+                <div class="form-check">
+                  <input
+                    class="form-check-input mt-0"
+                    value="{{ template.id }}"
+                    type="checkbox"
+                  >
+                  <span>Documento para firmar {{loop.index}}</span>
+                </div>
+              {% endif %}
+            {% endfor %}
+            <ul>
+              {% for template in templates %}
+                {% if template.is_signed %}
+                  <li>
+                    <span>Documento {{loop.index}} (Firmado)</span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
           </div>
-          <div class="form-check">
-            <input
-              class="form-check-input mt-0"
-              id="use-second-template"
-              type="checkbox"
-            >
-            <span>Usar segunda plantilla</span>
+        </div>
+        {% if not certificate %}
+          <div
+            role="alert"
+            class="alert alert-danger col-4"
+            id="message-not-found-certificate"
+            style="margin-top: 1em;"
+          >
+            No se ha agregado ningún certificado.
           </div>
-        </div>
-        <div
-          role="alert"
-          class="alert alert-danger"
-          id="message-not-found-certificate"
-          style="display: none; margin-top: 1em;"
-        >
-          No se ha agregado ningún certificado.
-        </div>
-        <div
-          role="alert"
-          id="success-load-files"
-          class="alert alert-success"
-          style="display: none; margin-top: 1em;"
-        >
-          La carga de su archivo se realizó con exito!.  
-          <a href="/signed-files" target="_blank" class="alert-link">
-            Ver archivos firmados
-          </a>
-        </div>
+        {% endif %}
         <div class="control-group" style="margin-top: 20px;">
           <button
             type="button"
-            id="send-data"
             class="btn btn-primary"
+            onclick="signDocuments()"
           >
-            Cargar
+            Firmar
           </button>
         </div>
       </form>
@@ -132,7 +122,7 @@
             <form>
               <div class="mb-3">
                 <label for="id-pin" class="col-form-label">Pin: </label>
-                <input type="text" class="form-control" id="id-pin">
+                <input type="password" class="form-control" id="id-pin">
               </div>
             </form>
           </div>
@@ -157,50 +147,43 @@
 {% endblock %}
 {% block scripts %}
 <script>
+  function signDocuments() {
+    const idSessionPin = $("#id-pin").val();
+    const idSessionCertificate = $("#id-session-certificate").val();
+    if (!idSessionCertificate) {
+      return;
+    }
+    if (!idSessionPin) {
+      const modalFormPin = new bootstrap.Modal('#pin-modal');
+      modalFormPin.show();
+    } else {
+      event.preventDefault();
+      var selectedDocuments = [];
+      $('#checkbox-container input:checked').each(function() {
+        selectedDocuments.push($(this).attr('value'));
+      });
+      const formData = { 
+        documentIds: selectedDocuments,
+        pin: $("#id-pin").val(),
+      };
+      $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: "/add-files",
+        data: JSON.stringify(formData),
+        contentType: "application/json; charset=utf-8",
+        success: function(data){
+          console.log("data: ", data);
+        },
+        error: function(error){
+          setTimeout(function(){
+            window.location.reload();
+          }, 6000);
+        }
+      });
+    }
+  };
   $(document).ready(function() {
-    $("#send-data").on("click", function() {
-      const idSessionPin = $("#id-session-pin").val();
-      const idSessionCertificate = $("#id-session-certificate").val();
-      if (!idSessionCertificate) {
-        $("#message-not-found-certificate").show();
-        setTimeout(function(){
-          $("#message-not-found-certificate").fadeOut(1000);
-        }, 700);
-        return;
-      }
-      if (!idSessionPin) {
-        const modalFormPin = new bootstrap.Modal('#pin-modal');
-        modalFormPin.show();
-      } else {
-        event.preventDefault();
-        const formData = {
-          useFirstTemplate: $("#use-first-template").is(':checked'),
-          useSecondTemplate: $("#use-second-template").is(':checked'),
-        };
-        $.ajax({
-          type: "POST",
-          dataType: "json",
-          url: "/add-files",
-          data: JSON.stringify(formData),
-          contentType: "application/json; charset=utf-8",
-          success: function(data){
-            console.log("data: ", data);
-          },
-          error: function(error){
-            setTimeout(function(){
-              $("#success-load-files").show();
-            }, 3000);
-            setTimeout(function(){
-              $("#success-load-files").fadeOut(1000);
-            }, 5000);
-          }
-        });
-      }
-    });
-    $("#load-certificate").on("click", function() {
-      const modalFormCertificate = new bootstrap.Modal('#certificate-modal');
-      modalFormCertificate.show();
-    });
     $("#send-certificate-data").on("click", function() {
       event.preventDefault();
       const formData = {
@@ -222,24 +205,8 @@
       });
     });
     $("#send-pin-data").on("click", function() {
-      event.preventDefault();
-      const formData = {
-        pin: $("#id-pin").val(),
-      };
-      $.ajax({
-        type: "POST",
-        dataType: "json",
-        url: "/add-pin",
-        data: JSON.stringify(formData),
-        contentType: "application/json; charset=utf-8",
-        success: function(data){
-          window.location.reload();
-        },
-        error: function(error){
-          window.location.reload();
-        }
-      });
-    })
+      $("#pin-modal").modal("hide");
+    });
   })
 </script>
 {% endblock %}

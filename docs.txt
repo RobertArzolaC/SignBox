@@ -1,0 +1,7 @@
+Agregar opciones al header:
+    * Opción nombre "Bandeja"
+    * Opción nombre "Documentos Firmados"
+    * Header Azul con logo en cuadrado azul
+    * Mostrar si archivo esta firmado o no.
+    * Nombres para "Documento para firmar 1"
+    * Opción para restablecer archivos firmados.
