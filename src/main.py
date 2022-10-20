@@ -64,8 +64,8 @@ def restore_files():
 @main.route("/result_<filename>", methods=["POST"])
 def url_out(filename):
     data = request.data
-    document = Document.query.filter(
-        Document.document_name.startswith(filename)
+    document = Document.query.filter_by(
+        document_name=f"{filename}.pdf"
     ).first()
 
     if document:
