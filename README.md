@@ -1,6 +1,6 @@
 # Proyecto Carga de archivos SignBox
 
-## Primero clonar proyecto
+## Primero clonar el proyecto
     
 ```bash
     git clone https://github.com/RobertArzolaC/SignBox.git
@@ -14,22 +14,30 @@
     pip install -r requirements.txt
 ```
 
-## Crear carpeta files en la raíz del proyecto
-
-```bash
-    mkdir files
-```
-
-## Crear archivo .env tomar como ejemplo el archivo example.env
+## Crear archivo .env tomar como ejemplo el archivo example.env y remplazar valores por datos válidos.
 
 ```bash
     cp example.env .env
 ```
 
-## Correr el servidor
+## Limpiar la base de datos.
 
 ```bash
-    flask run
+    python manage.py recreate_db
 ```
 
-## El fomulario se encuentra en el [link](http://0.0.0.0:5000/)
+## Agregar datos de prueba a la base de datos.
+
+```bash
+    python manage.py seed_db
+```
+
+## Correr el proyecto
+
+```bash
+    python manage.py run
+```
+
+## Para iniciar sesión ingresar al [link](http://0.0.0.0:8000/)
+
+#### Nota: Para que el servicio externo nos pueda retornar el archivo firmado es necesario exponer nuestro ambiente local mediante "ngrok" una vez obtenga la url pública modificar la variable SERVER_PROJECT en el archivo ".env" que se encuentra en la raíz del proyecto.
