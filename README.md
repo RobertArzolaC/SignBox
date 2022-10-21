@@ -35,7 +35,7 @@
 ## Correr el proyecto
 
 ```bash
-    python manage.py run
+    flask run
 ```
 
 ## Para iniciar sesión ingresar al [link](http://0.0.0.0:8000/)
